@@ -15,7 +15,10 @@
     --cyan: #00e5ff;
     --cyan-soft: rgba(0, 229, 255, 0.6);
     --cyan-faint: rgba(0, 229, 255, 0.15);
+    --amber: #ffb340;
+    --amber-soft: rgba(255, 179, 64, 0.7);
     --red: #ff3344;
+    --green: #2bff7a;
     --bg-deep: #000814;
     --bg-mid: #001428;
   }
@@ -37,7 +40,6 @@
     position: relative;
   }
 
-/* Grid background */
 body::before {
 content: ‘’;
 position: fixed; inset: 0;
@@ -50,7 +52,6 @@ mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
 -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
 }
 
-/* Scanline overlay */
 body::after {
 content: ‘’;
 position: fixed; inset: 0;
@@ -60,7 +61,6 @@ animation: scanFlicker 4s steps(1) infinite;
 }
 @keyframes scanFlicker { 50% { opacity: 0.5; } }
 
-/* Corner brackets */
 .corner {
 position: fixed; width: 38px; height: 38px;
 border-color: var(–cyan); border-style: solid; border-width: 0;
@@ -71,7 +71,6 @@ filter: drop-shadow(0 0 6px var(–cyan-soft));
 .corner.bl { bottom: 14px; left: 14px; border-bottom-width: 2px; border-left-width: 2px; }
 .corner.br { bottom: 14px; right: 14px; border-bottom-width: 2px; border-right-width: 2px; }
 
-/* Top status bar */
 .topbar {
 position: fixed; top: 22px; left: 60px; right: 60px;
 display: flex; justify-content: space-between;
@@ -87,7 +86,6 @@ box-shadow: 0 0 8px var(–cyan); animation: blink 1.4s infinite;
 }
 @keyframes blink { 50% { opacity: 0.3; } }
 
-/* Start screen */
 .startScreen {
 text-align: center;
 padding: 0 30px;
@@ -135,7 +133,6 @@ border: 1px solid var(–cyan);
 #startBtn::before { top: -4px; left: -4px; border-right: 0; border-bottom: 0; }
 #startBtn::after { bottom: -4px; right: -4px; border-left: 0; border-top: 0; }
 
-/* Main HUD */
 .hud {
 position: relative;
 width: 92vmin; height: 92vmin;
@@ -147,9 +144,7 @@ from { opacity: 0; transform: scale(0.85); }
 to { opacity: 1; transform: scale(1); }
 }
 
-.ring {
-position: absolute; border-radius: 50%; pointer-events: none;
-}
+.ring { position: absolute; border-radius: 50%; pointer-events: none; }
 .ring-1 {
 width: 100%; height: 100%;
 border: 1px dashed rgba(0, 229, 255, 0.35);
@@ -183,7 +178,6 @@ animation: rotate 9s linear infinite reverse;
 }
 @keyframes rotate { to { transform: rotate(360deg); } }
 
-/* Tick marks */
 .ticks {
 position: absolute; width: 88%; height: 88%; border-radius: 50%;
 background:
@@ -206,15 +200,13 @@ mask: radial-gradient(circle, transparent 49%, black 49%, black 50%, transparent
 opacity: 0.7;
 }
 
-/* Center core */
+/* Core – wechselt Farbe je nach State */
 .core {
 width: 32%; height: 32%; border-radius: 50%;
 background:
 radial-gradient(circle at 35% 35%, rgba(255,255,255,0.4) 0%, transparent 35%),
 radial-gradient(circle, var(–cyan) 0%, rgba(0,180,220,0.5) 40%, transparent 75%);
-box-shadow:
-0 0 60px rgba(0, 229, 255, 0.7),
-inset 0 0 30px rgba(255,255,255,0.3);
+box-shadow: 0 0 60px rgba(0, 229, 255, 0.7), inset 0 0 30px rgba(255,255,255,0.3);
 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 animation: corePulse 2.4s ease-in-out infinite;
 position: relative;
@@ -230,6 +222,21 @@ opacity: 0.9;
 0%, 100% { transform: scale(1); filter: brightness(1); }
 50% { transform: scale(1.06); filter: brightness(1.2); }
 }
+
+/* HÖRMODUS – amber, schnellerer Puls */
+.core.listening {
+background:
+radial-gradient(circle at 35% 35%, rgba(255,255,255,0.5) 0%, transparent 40%),
+radial-gradient(circle, var(–amber) 0%, rgba(255,140,0,0.5) 45%, transparent 80%);
+box-shadow: 0 0 80px var(–amber-soft), inset 0 0 35px rgba(255,255,255,0.35);
+animation: coreListen 0.9s ease-in-out infinite;
+}
+@keyframes coreListen {
+0%, 100% { transform: scale(1); }
+50% { transform: scale(1.12); }
+}
+
+/* AKTIV – rot */
 .core.active {
 background:
 radial-gradient(circle at 35% 35%, rgba(255,255,255,0.5) 0%, transparent 40%),
@@ -242,7 +249,14 @@ animation: coreActive 0.5s ease-in-out infinite;
 50% { transform: scale(1.18); }
 }
 
-/* Status text */
+/* ERKANNT – kurzer grüner Flash */
+.core.confirmed {
+background:
+radial-gradient(circle at 35% 35%, rgba(255,255,255,0.6) 0%, transparent 40%),
+radial-gradient(circle, var(–green) 0%, rgba(0,180,80,0.6) 45%, transparent 80%);
+box-shadow: 0 0 100px var(–green), inset 0 0 40px rgba(255,255,255,0.4);
+}
+
 .status {
 position: absolute; top: -2%;
 left: 50%; transform: translateX(-50%);
@@ -253,9 +267,10 @@ text-shadow: 0 0 12px var(–cyan);
 white-space: nowrap;
 transition: color 0.3s;
 }
-.status.alert { color: var(–red); text-shadow: 0 0 12px var(–red); }
+.status.listening { color: var(–amber); text-shadow: 0 0 12px var(–amber); }
+.status.alert     { color: var(–red);   text-shadow: 0 0 12px var(–red); }
+.status.ok        { color: var(–green); text-shadow: 0 0 12px var(–green); }
 
-/* Audio meter */
 .meter {
 position: absolute; bottom: 8%;
 left: 50%; transform: translateX(-50%);
@@ -270,7 +285,6 @@ transition: height 0.05s linear;
 border-radius: 1px;
 }
 
-/* Response text */
 .response {
 position: fixed; bottom: 14%;
 left: 8%; right: 8%;
@@ -285,7 +299,6 @@ letter-spacing: 0.04em;
 }
 .response.show { opacity: 1; }
 
-/* Clap counter pips */
 .pips {
 position: absolute; top: 12%;
 left: 50%; transform: translateX(-50%);
@@ -304,7 +317,6 @@ transform: scale(1.3);
 }
 
 .hidden { display: none !important; }
-
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 
@@ -316,15 +328,11 @@ transform: scale(1.3);
 <div class="corner bl"></div>
 <div class="corner br"></div>
 
-<!-- START SCREEN -->
-
 <div class="startScreen" id="startScreen">
   <h1>J.A.R.V.I.S.</h1>
   <div class="sub">// Just A Rather Very Intelligent System</div>
   <button id="startBtn">▷ Initialisieren</button>
 </div>
-
-<!-- HUD -->
 
 <div class="hud hidden" id="hud">
   <div class="topbar">
@@ -353,16 +361,11 @@ transform: scale(1.3);
 <div class="response" id="response"></div>
 
 <script>
-// Build meter bars
+// ============ ELEMENTE ============
 const meterEl = document.getElementById('meter');
-for (let i = 0; i < 24; i++) {
-  const b = document.createElement('div');
-  b.className = 'bar';
-  meterEl.appendChild(b);
-}
+for (let i = 0; i < 24; i++) { const b = document.createElement('div'); b.className = 'bar'; meterEl.appendChild(b); }
 const bars = meterEl.querySelectorAll('.bar');
 
-// Element refs
 const startScreen = document.getElementById('startScreen');
 const startBtn    = document.getElementById('startBtn');
 const hud         = document.getElementById('hud');
@@ -373,46 +376,70 @@ const clockEl     = document.getElementById('clock');
 const pip1        = document.getElementById('pip1');
 const pip2        = document.getElementById('pip2');
 
-// Phrase nach 2× Klatschen
-const phrases = [
-  "Aufwachen, Papa ist zuhause."
+// ============ INHALTE (gerne erweitern!) ============
+const STATUS_REPORTS = [
+  "Sarkasmus-Modul auf siebenundachtzig Prozent. Voll einsatzbereit.",
+  "Kaffeevorrat kritisch. Espressomaschine empfiehlt sofortigen Einsatz.",
+  "Anzug Mark XLIV bei vierundneunzig Prozent. Bereit zum Anlegen.",
+  "Drei Drohnen aufgewärmt. Eine davon hat schlechte Laune.",
+  "Heute keine Weltrettungstermine im Kalender. Sie haben den Tag frei.",
+  "Nanobots haben über Nacht Ihr Hemd gebügelt. Gerne geschehen.",
+  "Ich habe Ihre WLAN-Passwörter gegen die der Nachbarn getauscht. Ein kleiner Scherz.",
+  "Die Welt dreht sich weiter mit ungefähr 1670 Kilometern pro Stunde. Wie immer.",
+  "Sicherheitssysteme grün. Alle Türen verschlossen. Alle Bösewichte unbekannt.",
+  "Ich habe Ihren Spiegel kalibriert. Sie sehen heute distinguiert aus."
 ];
 
-// Clock
+const RECOMMENDATIONS = [
+  "Trinken Sie heute mindestens zwei Liter Wasser. Ihre Mitochondrien werden es Ihnen danken.",
+  "Tun Sie heute eine mutige Sache. Oder zwei. Drei wären übertrieben.",
+  "Lächeln Sie heute jemanden grundlos an. Es verwirrt die Menschen herrlich.",
+  "Ein zwanzigminütiger Spaziergang würde Ihnen guttun. Auch wenn Sie das jetzt nicht hören wollen.",
+  "Erledigen Sie zuerst die unangenehmste Aufgabe. Der Rest fühlt sich dann wie Urlaub an.",
+  "Sagen Sie heute jemandem etwas Nettes. Und meinen Sie es auch so.",
+  "Vermeiden Sie heute Diskussionen mit Algorithmen. Sie können nicht gewinnen.",
+  "Atmen Sie tief durch. Dreimal. Jetzt sofort. Ich warte."
+];
+
+const CONFIRMATIONS = [
+  "Ich habe Sie verstanden, Sir.",
+  "Selbstverständlich, Sir.",
+  "Sehr wohl, Sir.",
+  "Wie Sie wünschen, Sir."
+];
+
+// ============ STATE MACHINE ============
+const STATE = { IDLE: 'idle', LISTENING: 'listening', RESPONDING: 'responding' };
+let state = STATE.IDLE;
+
+// ============ AUDIO ============
+let audioCtx, analyser, timeData, freqData, micStream;
+let lastClapTime = 0;
+let clapTimestamps = [];
+
+const PEAK_THRESHOLD    = 0.32;
+const HF_RATIO_MIN      = 0.45;
+const COOLDOWN_MS       = 180;
+const MAX_CLAP_INTERVAL = 1100;
+const LISTEN_TIMEOUT_MS = 6000;
+
+// ============ UHR ============
+function pad(n) { return String(n).padStart(2, '0'); }
 function updateClock() {
   const d = new Date();
-  clockEl.textContent =
-    String(d.getHours()).padStart(2,'0') + ':' +
-    String(d.getMinutes()).padStart(2,'0') + ':' +
-    String(d.getSeconds()).padStart(2,'0');
+  clockEl.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
 }
 setInterval(updateClock, 1000); updateClock();
 
-// === Audio + Clap Detection ===
-let audioCtx, analyser, timeData, freqData;
-let lastClapTime = 0;
-let clapTimestamps = [];
-let isProcessing = false;
-
-const PEAK_THRESHOLD     = 0.32;  // 0..1 — höher = unempfindlicher
-const HF_RATIO_MIN       = 0.45;  // Klatscher haben viel Hochfrequenz-Anteil
-const COOLDOWN_MS        = 180;   // Minimum-Pause zwischen Klatschern
-const MAX_CLAP_INTERVAL  = 1100;  // Maximaler Abstand zwischen 2 Klatschern (ms)
-
+// ============ START ============
 startBtn.addEventListener('click', async () => {
   try {
-    // Audio Context muss durch User-Geste entstehen (iOS Safari)
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: false,
-        noiseSuppression: false,
-        autoGainControl:  false
-      }
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
     });
 
-    const source = audioCtx.createMediaStreamSource(stream);
+    const source = audioCtx.createMediaStreamSource(micStream);
     analyser = audioCtx.createAnalyser();
     analyser.fftSize = 1024;
     analyser.smoothingTimeConstant = 0.0;
@@ -424,49 +451,46 @@ startBtn.addEventListener('click', async () => {
     startScreen.classList.add('hidden');
     hud.classList.remove('hidden');
 
-    // Begrüßung – primed durch User-Geste
     setTimeout(() => speak("System aktiviert. Bereit für Ihren Befehl, Sir."), 400);
-
     detectLoop();
   } catch (err) {
-    alert('Mikrofon-Zugriff erforderlich.\n\n' + err.message + '\n\n(Stelle sicher, dass die Seite via HTTPS oder localhost läuft.)');
+    alert('Mikrofon-Zugriff erforderlich.\n\n' + err.message);
   }
 });
 
+// ============ KLATSCH-ERKENNUNG ============
 function detectLoop() {
+  if (!analyser) return;
   analyser.getByteTimeDomainData(timeData);
   analyser.getByteFrequencyData(freqData);
 
-  // Peak-Amplitude (Zeitbereich)
   let peak = 0;
   for (let i = 0; i < timeData.length; i++) {
     const v = Math.abs(timeData[i] - 128) / 128;
     if (v > peak) peak = v;
   }
 
-  // Visuelle Meter-Bars
-  const sampleCount = bars.length;
-  for (let i = 0; i < sampleCount; i++) {
-    const idx = Math.floor(i * freqData.length / sampleCount);
+  for (let i = 0; i < bars.length; i++) {
+    const idx = Math.floor(i * freqData.length / bars.length);
     const h = Math.max(3, (freqData[idx] / 255) * 32);
     bars[i].style.height = h + 'px';
   }
 
-  // Klatsch-Erkennung: hohe Amplitude + viel Hochfrequenz-Anteil
-  const half = freqData.length / 2;
-  let lowSum = 0, highSum = 0;
-  for (let i = 0; i < freqData.length; i++) {
-    if (i < half) lowSum += freqData[i];
-    else          highSum += freqData[i];
-  }
-  const totalSum = lowSum + highSum + 1;
-  const hfRatio  = highSum / totalSum;
+  // Klatscher nur im IDLE-State erkennen
+  if (state === STATE.IDLE) {
+    const half = freqData.length / 2;
+    let lowSum = 0, highSum = 0;
+    for (let i = 0; i < freqData.length; i++) {
+      if (i < half) lowSum += freqData[i]; else highSum += freqData[i];
+    }
+    const hfRatio = highSum / (lowSum + highSum + 1);
 
-  if (!isProcessing && peak > PEAK_THRESHOLD && hfRatio > HF_RATIO_MIN) {
-    const now = performance.now();
-    if (now - lastClapTime > COOLDOWN_MS) {
-      lastClapTime = now;
-      registerClap(now);
+    if (peak > PEAK_THRESHOLD && hfRatio > HF_RATIO_MIN) {
+      const now = performance.now();
+      if (now - lastClapTime > COOLDOWN_MS) {
+        lastClapTime = now;
+        registerClap(now);
+      }
     }
   }
 
@@ -475,18 +499,14 @@ function detectLoop() {
 
 function registerClap(now) {
   clapTimestamps.push(now);
-  // Nur jüngste Klatscher behalten
   clapTimestamps = clapTimestamps.filter(t => now - t < MAX_CLAP_INTERVAL);
-
-  // Pip-Anzeige aktualisieren
   pip1.classList.toggle('lit', clapTimestamps.length >= 1);
   pip2.classList.toggle('lit', clapTimestamps.length >= 2);
 
   if (clapTimestamps.length >= 2) {
     clapTimestamps = [];
-    triggerJarvis();
+    enterListeningMode();
   } else {
-    // Nach Timeout zurücksetzen, falls 2. Klatscher nicht kommt
     setTimeout(() => {
       if (clapTimestamps.length === 1 && performance.now() - clapTimestamps[0] >= MAX_CLAP_INTERVAL) {
         clapTimestamps = [];
@@ -496,42 +516,239 @@ function registerClap(now) {
   }
 }
 
-function triggerJarvis() {
-  isProcessing = true;
-  core.classList.add('active');
-  statusEl.classList.add('alert');
-  statusEl.textContent = '◉ AKTIVIERT';
-  pip1.classList.add('lit');
-  pip2.classList.add('lit');
+// ============ HÖRMODUS ============
+let recognition = null;
+let listenTimeout = null;
 
-  const phrase = phrases[Math.floor(Math.random() * phrases.length)];
-  responseEl.textContent = phrase;
+function enterListeningMode() {
+  if (state !== STATE.IDLE) return;
+  state = STATE.LISTENING;
+
+  core.classList.add('listening');
+  statusEl.classList.add('listening');
+  statusEl.textContent = '◉ JARVIS HÖRT...';
+  responseEl.textContent = 'Sprich jetzt. Ich höre.';
   responseEl.classList.add('show');
-  speak(phrase);
 
-  setTimeout(() => {
-    core.classList.remove('active');
-    statusEl.classList.remove('alert');
-    statusEl.textContent = '2× KLATSCHEN ZUM AKTIVIEREN';
-    pip1.classList.remove('lit');
-    pip2.classList.remove('lit');
-    responseEl.classList.remove('show');
-    setTimeout(() => { responseEl.textContent = ''; }, 400);
-    isProcessing = false;
-  }, 5500);
+  // Kleines akustisches Signal
+  beep(880, 0.08, 0.1);
+
+  startRecognition();
 }
 
-// === Sprachausgabe ===
+function startRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    showError('Spracherkennung in diesem Browser nicht verfügbar.');
+    return;
+  }
+
+  recognition = new SR();
+  recognition.lang = 'de-DE';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 5;
+
+  let resolved = false;
+
+  recognition.onresult = (event) => {
+    if (resolved) return;
+    const alts = event.results[0];
+    for (let i = 0; i < alts.length; i++) {
+      const t = alts[i].transcript.toLowerCase();
+      if (matchWakePhrase(t)) {
+        resolved = true;
+        clearTimeout(listenTimeout);
+        try { recognition.stop(); } catch {}
+        confirmAndAwaken();
+        return;
+      }
+    }
+    // Erkannt, aber falscher Satz
+    resolved = true;
+    clearTimeout(listenTimeout);
+    showError('Befehl nicht erkannt.');
+  };
+
+  recognition.onerror = (event) => {
+    if (resolved) return;
+    resolved = true;
+    clearTimeout(listenTimeout);
+    if (event.error === 'no-speech')      showError('Kein Sprachsignal.');
+    else if (event.error === 'not-allowed') showError('Mikro-Zugriff verweigert.');
+    else                                    showError('Fehler: ' + event.error);
+  };
+
+  recognition.onend = () => {
+    if (resolved) return;
+    resolved = true;
+    clearTimeout(listenTimeout);
+    showError('Keine Antwort empfangen.');
+  };
+
+  try { recognition.start(); }
+  catch (e) { showError('Recognition-Start fehlgeschlagen.'); }
+
+  listenTimeout = setTimeout(() => {
+    if (!resolved) {
+      try { recognition.stop(); } catch {}
+    }
+  }, LISTEN_TIMEOUT_MS);
+}
+
+function matchWakePhrase(text) {
+  const t = text.toLowerCase().replace(/[^\wäöüß ]/g, '').trim();
+  // tolerant: "aufwachen" + entweder "papa" oder "zuhause"
+  return t.includes('aufwachen') && (t.includes('papa') || t.includes('zuhause'));
+}
+
+function showError(msg) {
+  state = STATE.IDLE;
+  core.classList.remove('listening');
+  statusEl.classList.remove('listening');
+  statusEl.textContent = '✕ ' + msg.toUpperCase();
+  responseEl.textContent = msg;
+  beep(220, 0.15, 0.08);
+  setTimeout(() => {
+    statusEl.textContent = '2× KLATSCHEN ZUM AKTIVIEREN';
+    responseEl.classList.remove('show');
+  }, 2200);
+}
+
+function confirmAndAwaken() {
+  // Grüner Bestätigungs-Flash
+  core.classList.remove('listening');
+  core.classList.add('confirmed');
+  statusEl.classList.remove('listening');
+  statusEl.classList.add('ok');
+  statusEl.textContent = '✓ ERKANNT';
+  beep(1320, 0.1, 0.12);
+
+  setTimeout(() => {
+    core.classList.remove('confirmed');
+    statusEl.classList.remove('ok');
+    runJarvisBriefing();
+  }, 700);
+}
+
+// ============ JARVIS BRIEFING ============
+async function runJarvisBriefing() {
+  state = STATE.RESPONDING;
+  core.classList.add('active');
+  statusEl.classList.add('alert');
+  statusEl.textContent = '◉ AKTIV';
+
+  const lines = await buildBriefingLines();
+
+  for (const line of lines) {
+    showResponseText(line);
+    await speakAsync(line);
+    await sleep(250);
+  }
+
+  // Zurück zu IDLE
+  core.classList.remove('active');
+  statusEl.classList.remove('alert');
+  statusEl.textContent = '2× KLATSCHEN ZUM AKTIVIEREN';
+  pip1.classList.remove('lit');
+  pip2.classList.remove('lit');
+  setTimeout(() => {
+    responseEl.classList.remove('show');
+    setTimeout(() => { responseEl.textContent = ''; }, 400);
+  }, 1500);
+  state = STATE.IDLE;
+}
+
+async function buildBriefingLines() {
+  const d = new Date();
+  const greeting = timeBasedGreeting(d);
+  const dateStr  = formatDateLong(d);
+  const timeStr  = pad(d.getHours()) + ' Uhr ' + pad(d.getMinutes());
+
+  const lines = [
+    pickRandom(CONFIRMATIONS) + " Willkommen zurück.",
+    `${greeting} Es ist ${timeStr}, am ${dateStr}.`
+  ];
+
+  // Wetter optional
+  const weather = await fetchWeather();
+  if (weather) lines.push(`Aktuelle Außenbedingungen: ${weather}.`);
+
+  // Statusbericht (2 zufällige, ohne Doppler)
+  lines.push("Statusbericht:");
+  const sList = shuffled(STATUS_REPORTS).slice(0, 2);
+  for (const s of sList) lines.push(s);
+
+  // Empfehlung
+  lines.push("Mein Vorschlag für heute:");
+  lines.push(pickRandom(RECOMMENDATIONS));
+
+  // Schluss
+  lines.push("Ich stehe zu Ihrer Verfügung. Bereit für Ihre Befehle.");
+  return lines;
+}
+
+function timeBasedGreeting(d) {
+  const h = d.getHours();
+  if (h < 5)  return "Sie sind aber spät dran, Sir.";
+  if (h < 11) return "Guten Morgen, Sir.";
+  if (h < 17) return "Guten Tag, Sir.";
+  if (h < 22) return "Guten Abend, Sir.";
+  return "Es ist spät, Sir.";
+}
+
+function formatDateLong(d) {
+  const wt = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'][d.getDay()];
+  const mo = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'][d.getMonth()];
+  return `${wt}, dem ${d.getDate()}. ${mo}`;
+}
+
+async function fetchWeather() {
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 4000);
+    // wttr.in liefert Wetter basierend auf IP-Geolocation, kein Key nötig
+    const res = await fetch('https://wttr.in/?format=%t+%C&lang=de', { signal: ctrl.signal });
+    if (!res.ok) return null;
+    const text = (await res.text()).trim();
+    if (text.length < 2 || text.length > 80) return null;
+    return text.replace(/\+/g, '').trim(); // "+18°C Sonnig" -> "18°C Sonnig"
+  } catch { return null; }
+}
+
+// ============ HELPERS ============
+function showResponseText(text) {
+  responseEl.textContent = text;
+  responseEl.classList.add('show');
+}
+function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffled(arr)   { return [...arr].sort(() => Math.random() - 0.5); }
+function sleep(ms)       { return new Promise(r => setTimeout(r, ms)); }
+
+function beep(freq, dur, vol) {
+  if (!audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.value = vol;
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+    osc.stop(audioCtx.currentTime + dur);
+  } catch {}
+}
+
+// ============ TTS ============
 let cachedVoice = null;
 function pickVoice() {
   if (!('speechSynthesis' in window)) return null;
   const voices = speechSynthesis.getVoices();
   if (!voices.length) return null;
-  // Bevorzugt deutsche männliche Stimme
-  const preferred = voices.find(v => v.lang.startsWith('de') && /male|markus|stefan|hans|yannick|conrad/i.test(v.name))
-                 || voices.find(v => v.lang.startsWith('de'))
-                 || voices[0];
-  return preferred;
+  return voices.find(v => v.lang.startsWith('de') && /male|markus|stefan|hans|yannick|conrad/i.test(v.name))
+      || voices.find(v => v.lang.startsWith('de'))
+      || voices[0];
 }
 if ('speechSynthesis' in window) {
   speechSynthesis.onvoiceschanged = () => { cachedVoice = pickVoice(); };
@@ -542,12 +759,23 @@ function speak(text) {
   if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'de-DE';
-  u.rate = 0.95;
-  u.pitch = 0.85;
+  u.lang = 'de-DE'; u.rate = 0.95; u.pitch = 0.85;
   if (!cachedVoice) cachedVoice = pickVoice();
   if (cachedVoice) u.voice = cachedVoice;
   speechSynthesis.speak(u);
+}
+
+function speakAsync(text) {
+  return new Promise(resolve => {
+    if (!('speechSynthesis' in window)) { resolve(); return; }
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'de-DE'; u.rate = 0.95; u.pitch = 0.85;
+    if (!cachedVoice) cachedVoice = pickVoice();
+    if (cachedVoice) u.voice = cachedVoice;
+    u.onend = resolve;
+    u.onerror = resolve;
+    speechSynthesis.speak(u);
+  });
 }
 </script>
 
